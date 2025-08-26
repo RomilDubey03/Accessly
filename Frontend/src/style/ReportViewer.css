@@ -1,0 +1,73 @@
+.report-container {
+  padding: 2rem;
+  max-width: 900px;
+  margin: auto;
+}
+
+.report-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #fdfdfd;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.impact {
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: white;
+  text-transform: capitalize;
+}
+
+.impact.minor { background-color: green; }
+.impact.moderate { background-color: orange; }
+.impact.serious { background-color: orangered; }
+.impact.critical { background-color: red; }
+
+  /* background: #f1f1ff;
+  padding: 0.75rem;
+  border-left: 4px solid #6c63ff;
+  margin-top: 1rem;
+  border-radius: 6px; */
+  .gpt-box {
+  background-color: #9cc5f8;
+  border-left: 4px solid #8781f9; /* green accent */
+  padding: 15px 20px;
+  margin-top: 15px;
+  border-radius: 6px;
+  color: #0e0404;
+  font-style: italic;
+  white-space: pre-wrap; /* preserve whitespace */
+}
+
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: #f3f3f3;
+  padding: 0.5rem 1rem;
+  border-radius: 6px 6px 0 0;
+}
+
+.card-body {
+  padding: 1rem;
+  background: white;
+}
+
+.report-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 1.2rem;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
