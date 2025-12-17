@@ -11,7 +11,7 @@ const ReportViewer = ({ report, analyzedUrl }) => {
   const handleDownloadPDF = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/analyze-url/generate-pdf', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/analyze-url/generate-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ violations: report, url: analyzedUrl }),
@@ -94,7 +94,7 @@ const ReportCard = ({ violation, index }) => {
         failureSummary: violation.nodes?.[0]?.failureSummary
       };
 
-      const response = await fetch('http://localhost:5000/analyze-url/suggest-fix', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/analyze-url/suggest-fix`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ violation: flattenedViolation }),
