@@ -1,4 +1,11 @@
-const puppeteer = require("puppeteer");
+const chromium = require("@sparticuz/chromium");
+const puppeteerCore = require("puppeteer-core");
+let puppeteer;
+try {
+  puppeteer = require("puppeteer");
+} catch (e) {
+  // Puppeteer not available (production)
+}
 
 /**
  * Generates a PDF buffer from a list of violations.
@@ -11,10 +18,29 @@ async function createPdfReport(violations, url) {
   let browser;
 
   try {
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+    let launchOptions = {};
+
+    if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+       // Production (Vercel) config
+       const executablePath = await chromium.executablePath();
+       launchOptions = {
+         args: chromium.args,
+         defaultViewport: chromium.defaultViewport,
+         executablePath: executablePath,
+         headless: chromium.headless,
+       };
+       browser = await puppeteerCore.launch(launchOptions);
+    } else {
+       // Local development config
+       if (!puppeteer) {
+          throw new Error("Puppeteer dependency not found for local development.");
+       }
+       launchOptions = {
+         headless: "new",
+         args: ["--no-sandbox", "--disable-setuid-sandbox"],
+       };
+       browser = await puppeteer.launch(launchOptions);
+    }
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });

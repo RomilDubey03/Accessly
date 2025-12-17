@@ -13,12 +13,16 @@
   "description": "",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@sparticuz/chromium": "^143.0.0",
     "axe-core": "^4.10.3",
     "axios": "^1.9.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "openai": "^5.1.0",
-    "puppeteer": "^24.17.0"
+    "puppeteer-core": "^24.33.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^24.33.0"
   }
 }
