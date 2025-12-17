@@ -12,7 +12,7 @@ export default function Home() {
     setLoading(true);
     setAnalyzedUrl(url);
     try {
-      const response = await fetch('http://localhost:5000/analyze-url', {
+      const response = await fetch('https://accessly-m6xq.vercel.app/analyze-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
