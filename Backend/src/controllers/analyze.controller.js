@@ -1,5 +1,5 @@
 const { runAxeAnalysis } = require("../services/accessibilityService");
-const { enhanceViolationsWithAI } = require("../services/aiService");
+const { generateFixSuggestion } = require("../services/aiService");
 const { createPdfReport } = require("../services/pdfService");
 
 /**
@@ -11,16 +11,31 @@ async function analyze(req, res) {
 
   try {
     const results = await runAxeAnalysis(url);
-    const enhancedViolations = await enhanceViolationsWithAI(
-      results.violations
-    );
-
-    res.json({ violations: enhancedViolations });
+    // violations are returned raw, without AI enhancement
+    res.json({ violations: results.violations });
   } catch (error) {
     console.error("Analysis Controller Error:", error);
     res
       .status(500)
       .json({ error: error.message || "Failed to analyze accessibility" });
+  }
+}
+
+/**
+ * Handles the AI fix suggestion request.
+ */
+async function suggestFix(req, res) {
+  const { violation } = req.body;
+  if (!violation) {
+    return res.status(400).json({ error: "Violation data is required" });
+  }
+
+  try {
+    const suggestion = await generateFixSuggestion(violation);
+    res.json({ suggestion });
+  } catch (error) {
+    console.error("Suggestion Controller Error:", error);
+    res.status(500).json({ error: "Failed to generate suggestion" });
   }
 }
 
@@ -50,4 +65,4 @@ async function generatePdf(req, res) {
   }
 }
 
-module.exports = { analyze, generatePdf };
+module.exports = { analyze, generatePdf, suggestFix };

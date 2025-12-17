@@ -76,6 +76,41 @@ const ReportViewer = ({ report, analyzedUrl }) => {
 // ... (ReportCard component) ...
 const ReportCard = ({ violation, index }) => {
   const [expanded, setExpanded] = useState(false);
+  const [suggestion, setSuggestion] = useState(null);
+  const [loadingAI, setLoadingAI] = useState(false);
+  const [errorAI, setErrorAI] = useState(false);
+
+  const handleAskAI = async (e) => {
+    e.stopPropagation(); // Prevent toggling expansion
+    if (suggestion) return; // Already fetched
+
+    setLoadingAI(true);
+    setErrorAI(false);
+    try {
+      // Prepare the violation object with flattened HTML and failure summary for the backend
+      const flattenedViolation = {
+        ...violation,
+        html: violation.nodes?.[0]?.html,
+        failureSummary: violation.nodes?.[0]?.failureSummary
+      };
+
+      const response = await fetch('http://localhost:5000/analyze-url/suggest-fix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ violation: flattenedViolation }),
+      });
+      const data = await response.json();
+      if (data.suggestion) {
+        setSuggestion(data.suggestion);
+      } else {
+        throw new Error("No suggestion returned");
+      }
+    } catch (err) {
+      console.error("AI Error:", err);
+      setErrorAI(true);
+    }
+    setLoadingAI(false);
+  };
 
   // Helper for impact color
   const getImpactColor = (impact) => {
@@ -129,19 +164,36 @@ const ReportCard = ({ violation, index }) => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-indigo-900/20 to-purple-900/20 rounded-xl p-5 border border-indigo-500/20">
-            <h4 className="flex items-center gap-2 text-indigo-300 font-bold mb-3">
-              <span className="text-xl">🧠</span> GEMINI Suggestion
-            </h4>
-            <div className="text-slate-300 space-y-2 leading-relaxed">
-              {violation.gptExplanation
-                ? violation.gptExplanation.split('\n').map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))
-                : <p className="italic text-slate-500">No AI suggestion available for this issue.</p>
-              }
+          {!suggestion && !loadingAI && !errorAI && (
+            <button
+              onClick={handleAskAI}
+              className="mt-2 w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              <span>✨</span> Ask AI for Fix
+            </button>
+          )}
+
+          {loadingAI && (
+            <div className="flex items-center gap-2 text-slate-400 text-sm animate-pulse">
+              <span className="w-4 h-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+              Generating concise fix...
             </div>
-          </div>
+          )}
+
+          {errorAI && (
+            <div className="text-red-400 text-sm">Failed to get suggestion. Try again.</div>
+          )}
+
+          {suggestion && (
+            <div className="bg-gradient-to-br from-indigo-900/20 to-purple-900/20 rounded-xl p-5 border border-indigo-500/20 animate-in fade-in">
+              <h4 className="flex items-center gap-2 text-indigo-300 font-bold mb-2">
+                <span className="text-xl">🧠</span> GEMINI Suggestion
+              </h4>
+              <p className="text-slate-300 leading-relaxed text-sm">
+                {suggestion}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

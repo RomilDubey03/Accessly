@@ -9,30 +9,29 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
  * @param {Array} violations - Array of violation objects.
  * @returns {Promise<Array>} - Enhanced violations.
  */
-async function enhanceViolationsWithAI(violations) {
-  return Promise.all(
-    violations.map(async (v) => {
-      const prompt = `
-Explain this accessibility issue in simple terms and suggest a fix:
-Rule: ${v.id} (${v.help})
-Description: ${v.description}
-HTML: ${v.nodes[0]?.html || "N/A"}
-Failure Summary: ${v.nodes[0]?.failureSummary || "N/A"}
-      `;
+/**
+ * Generates a concise fix suggestion for a single violation.
+ * @param {Object} violation - The violation object.
+ * @returns {Promise<string>} - The suggested fix.
+ */
+async function generateFixSuggestion(violation) {
+  const prompt = `
+    Provide a specific and very concise fix for this accessibility issue (max 2 sentences).
+    Rule: ${violation.id} (${violation.help})
+    Description: ${violation.description}
+    HTML: ${violation.html || "N/A"}
+    Failure: ${violation.failureSummary || "N/A"}
+  `;
 
-      try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-        v.gptExplanation = text ? text.trim() : "No explanation generated.";
-      } catch (err) {
-        console.error("Gemini API error:", err.message);
-        v.gptExplanation = "Error generating Gemini explanation.";
-      }
-
-      return v;
-    })
-  );
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    return text ? text.trim() : "No suggestion available.";
+  } catch (err) {
+    console.error("Gemini API error:", err.message);
+    return "Error generating suggestion.";
+  }
 }
 
-module.exports = { enhanceViolationsWithAI };
+module.exports = { generateFixSuggestion };
